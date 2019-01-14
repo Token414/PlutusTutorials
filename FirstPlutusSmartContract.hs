@@ -3,12 +3,13 @@ module MyFirstPlutusSmartContract where
 import qualified Language.PlutusTx            as PlutusTx
 import           Ledger
 import           Wallet
+import           Ledger.Validation
 import           Playground.Contract
 
 
 myFirstValidator :: ValidatorScript
 myFirstValidator = ValidatorScript (fromCompiledCode $$(PlutusTx.compile
-    [|| \(a :: ()) (myPIN :: Int) (c :: ()) -> ()  ||]))
+    [|| \(submittedPIN :: Int) (myPIN :: Int) (p :: PendingTx') -> ()  ||]))
    
 smartContractAddress :: Address'
 smartContractAddress = scriptAddress myFirstValidator
@@ -19,8 +20,8 @@ watchSmartContract = startWatching smartContractAddress
 depositADA :: Int -> Value -> MockWallet ()
 depositADA pin val = payToScript_ smartContractAddress val (DataScript (lifted pin))
 
-withdrawADA :: MockWallet ()
-withdrawADA = collectFromScript myFirstValidator unitRedeemer
+withdrawADA :: Int -> MockWallet ()
+withdrawADA pin = collectFromScript myFirstValidator (RedeemerScript (lifted pin))
 
 $(mkFunction 'watchSmartContract)
 $(mkFunction 'depositADA)
