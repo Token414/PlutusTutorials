@@ -8,7 +8,7 @@ import           Playground.Contract
 
 myFirstValidator :: ValidatorScript
 myFirstValidator = ValidatorScript (fromCompiledCode $$(PlutusTx.compile
-    [|| \(a :: ()) (b :: ()) (c :: ()) -> ()  ||]))
+    [|| \(a :: ()) (myPIN :: Int) (c :: ()) -> ()  ||]))
    
 smartContractAddress :: Address'
 smartContractAddress = scriptAddress myFirstValidator
@@ -16,8 +16,8 @@ smartContractAddress = scriptAddress myFirstValidator
 watchSmartContract :: MockWallet ()
 watchSmartContract = startWatching smartContractAddress
 
-depositADA :: Value -> MockWallet ()
-depositADA val = payToScript_ smartContractAddress val unitData
+depositADA :: Int -> Value -> MockWallet ()
+depositADA pin val = payToScript_ smartContractAddress val (DataScript (lifted pin))
 
 withdrawADA :: MockWallet ()
 withdrawADA = collectFromScript myFirstValidator unitRedeemer
