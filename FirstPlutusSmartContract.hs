@@ -16,4 +16,8 @@ smartContractAddress = scriptAddress myFirstValidator
 watchSmartContract :: MockWallet ()
 watchSmartContract = startWatching smartContractAddress
 
+depositADA :: Value -> MockWallet ()
+depositADA val = payToScript_ smartContractAddress val unitData
+
 $(mkFunction 'watchSmartContract)
+$(mkFunction 'depositADA)
