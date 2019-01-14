@@ -1,6 +1,7 @@
 module MyFirstPlutusSmartContract where
 
 import qualified Language.PlutusTx            as PlutusTx
+import qualified Language.PlutusTx.Prelude    as P
 import           Ledger
 import           Wallet
 import           Ledger.Validation
@@ -9,8 +10,12 @@ import           Playground.Contract
 
 myFirstValidator :: ValidatorScript
 myFirstValidator = ValidatorScript (fromCompiledCode $$(PlutusTx.compile
-    [|| \(submittedPIN :: Int) (myPIN :: Int) (p :: PendingTx') -> ()  ||]))
-   
+    [|| \(submittedPIN :: Int) (myPIN :: Int) (p :: PendingTx') ->
+     if submittedPIN == myPIN
+     then ()
+     else $$(P.error) ($$(P.traceH) "Please supply the correct PIN number to withdraw ada." ())
+     ||]))
+     
 smartContractAddress :: Address'
 smartContractAddress = scriptAddress myFirstValidator
 
